@@ -49,11 +49,6 @@ export function parseTtmlClockTime(value: string | null | undefined): number {
 	return 0;
 }
 
-/** 把毫秒格式化成生成器使用的秒数字符串（`"2.500"`） */
-function formatTtmlSeconds(ms: number): string {
-	return (ms / 1000).toFixed(3);
-}
-
 /** 读取元素的 `ttm:role` 属性（容忍命名空间前缀差异） */
 function getElementRole(element: Element): string | null {
 	for (const attr of Array.from(element.attributes)) {
@@ -130,7 +125,19 @@ export function collapseStackedBgForExport(result: AmllLyricResult): {
 } {
 	const groups: StackedBgGroup[] = [];
 	const out: AmllLyricLine[] = [];
-	const lines = result.lyricLines;
+	let lines = result.lyricLines;
+
+	// 背景人声只能依附在「它前面的主行」所在的 <p> 上（WASM 每个 <p> 至多一条背景行）。
+	// 文件开头没有主行可依附的背景行会被 WASM 直接丢弃（变成普通行）。
+	// 这里把开头连续的背景行挪到「第一个主行」之后，让它们能正确附加到该主行的 <p>。
+	// 显示按时间排序，因此只挪动 <p> 顺序不会影响渲染。
+	const firstMainIdx = lines.findIndex((l) => !l.isBG);
+	if (firstMainIdx > 0) {
+		const leadingBg = lines.slice(0, firstMainIdx);
+		const rest = lines.slice(firstMainIdx);
+		lines = [rest[0], ...leadingBg, ...rest.slice(1)];
+	}
+
 	let pCount = 0;
 	let prevLineWasMain = false;
 	let i = 0;
@@ -149,8 +156,7 @@ export function collapseStackedBgForExport(result: AmllLyricResult): {
 		const prev = out[out.length - 1];
 		const hasPrevMain = prev !== undefined && !prev.isBG;
 		if (group.length === 1 || !hasPrevMain || pCount === 0) {
-			// 无需（或无法）折叠，保持旧行为：
-			// 紧跟主行的第一条背景行附加到主行的 <p>，其余生成独立的 <p>
+			// 单条背景行：紧跟主行时附加到主行的 <p>，否则生成独立 <p>
 			for (const g of group) {
 				out.push(g);
 				if (prevLineWasMain && pCount > 0) {
@@ -256,20 +262,14 @@ export function splitStackedBgInXml(
 				const bucket = buckets[k];
 				const newBg = doc.createElementNS(bgSpan.namespaceURI, "span");
 				newBg.setAttribute("ttm:role", "x-bg");
-				newBg.setAttribute(
-					"begin",
-					formatTtmlSeconds(
-						parseTtmlClockTime(bucket[0].getAttribute("begin")),
-					),
-				);
-				newBg.setAttribute(
-					"end",
-					formatTtmlSeconds(
-						parseTtmlClockTime(bucket[bucket.length - 1].getAttribute("end")),
-					),
-				);
-				for (const span of bucket) newBg.appendChild(span);
-				if (k === 0) {
+				// 直接复制词 span 上已经由生成器写好的时间字符串（生成器用的是
+				// 时钟格式，如 `2:39.327`；自己用秒数重算会得到 `159.327` 这种
+				// 非标准写法，部分解析器会按非法时间处理）。
+				const beginAttr = bucket[0].getAttribute("begin");
+				const endAttr = bucket[bucket.length - 1].getAttribute("end");
+				if (beginAttr !== null) newBg.setAttribute("begin", beginAttr);
+				if (endAttr !== null) newBg.setAttribute("end", endAttr);
+				for (const span of bucket) newBg.appendChild(span);				if (k === 0) {
 					// 第一条沿用生成器生成的翻译/音译 span
 					if (translationSpan) newBg.appendChild(translationSpan);
 					if (romanSpan) newBg.appendChild(romanSpan);
