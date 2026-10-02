@@ -43,6 +43,12 @@ export interface LyricWord extends AMLLLyricWord {
 	emptyBeat: number;
 	romanWarning?: boolean;
 	ruby?: LyricWordBase[];
+	/**
+	 * 标记 `ruby` 是由「自动拆分英文音节」生成的。
+	 * 关闭该开关时只会移除带此标记的音节，不会动到手动录入的 ruby。
+	 * 编辑器内部字段，导出时丢弃。
+	 */
+	rubyAuto?: boolean;
 }
 
 export const newLyricWord = (): LyricWord => ({
@@ -66,6 +72,12 @@ export interface LyricLine extends AMLLLyricLine {
 	startTime: number;
 	endTime: number;
 	ignoreSync: boolean;
+	/**
+	 * 整行只有一个时间轴（行同步），而不是逐词打轴。
+	 * 由解析器按结构判定：整行就是一个 <p> 文本、没有定时 span 时置 true。
+	 * 渲染器用它区分「整行扫光」和「逐词扫光」。
+	 */
+	isLineSynced?: boolean;
 	/**
 	 * @description 用于记录时间链接前的原始时间值，便于取消链接时恢复
 	 */

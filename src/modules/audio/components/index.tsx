@@ -10,8 +10,6 @@
  */
 
 import {
-	ChevronDownFilled,
-	ChevronUpFilled,
 	MusicNote2Filled,
 	MyLocationRegular,
 	PauseFilled,
@@ -31,7 +29,7 @@ import {
 	Tooltip,
 } from "@radix-ui/themes";
 import { useAtom, useAtomValue, useSetAtom, useStore } from "jotai";
-import { type FC, memo, useCallback, useEffect, useRef, useState } from "react";
+import { type FC, memo, useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useFileOpener } from "$/hooks/useFileOpener";
 import { audioEngine } from "$/modules/audio/audio-engine";
@@ -46,7 +44,6 @@ import {
 	volumeAtom,
 } from "$/modules/audio/states";
 import { AuditionKeyBinding } from "$/modules/keyboard/components/AuditionKeyBinding";
-import { AudioSpectrogram } from "$/modules/spectrogram/components/AudioSpectrogram";
 import {
 	keyPlaybackRateDownAtom,
 	keyPlaybackRateResetAtom,
@@ -139,7 +136,6 @@ const CurrentTimeDisplay = memo(() => {
 });
 
 export const AudioControls: FC = memo(() => {
-	const [spectrogramVisible, setSpectrogramVisible] = useState(false);
 	const currentDuration = useAtomValue(currentDurationAtom);
 	const engineState = useAtomValue(audioEngineStateAtom);
 	const { bpmState, currentBpm } = useBpmControl();
@@ -219,9 +215,6 @@ export const AudioControls: FC = memo(() => {
 				<AudioPlaybackKeyBinding />
 				<AuditionKeyBinding />
 				<Flex direction="column">
-					<div style={{ display: spectrogramVisible ? "flex" : "none" }}>
-						<AudioSpectrogram />
-					</div>
 					<Flex align="center" px="2" gapX="2">
 						<HoverCard.Root>
 							<HoverCard.Trigger>
@@ -245,23 +238,23 @@ export const AudioControls: FC = memo(() => {
 											step={0.01}
 											onValueChange={(v) => setVolume(v[0])}
 										/>
-										<Text wrap="nowrap" color="gray" size="1">
-											{(volume * 100).toFixed()}%
-										</Text>
-										<Text wrap="nowrap">
-											{t("audioPanel.playbackRate", "播放速度")}
-										</Text>
-										<Slider
-											min={0.1}
-											max={2}
-											defaultValue={[playbackRate]}
-											step={0.05}
-											onValueChange={(v) => setPlaybackRate(v[0])}
-										/>
-										<Text wrap="nowrap" color="gray" size="1">
-											{playbackRate.toFixed(2)}x
-										</Text>
-										<Text wrap="nowrap">{t("audioPanel.bpm", "BPM")}</Text>
+									<Text wrap="nowrap" color="gray" size="1">
+										{(volume * 100).toFixed()}%
+									</Text>
+									<Text wrap="nowrap">
+										{t("audioPanel.playbackRate", "播放速度")}
+									</Text>
+									<Slider
+										min={0.1}
+										max={2}
+										defaultValue={[playbackRate]}
+										step={0.05}
+										onValueChange={(v) => setPlaybackRate(v[0])}
+									/>
+									<Text wrap="nowrap" color="gray" size="1">
+										{playbackRate.toFixed(2)}x
+									</Text>
+									<Text wrap="nowrap">{t("audioPanel.bpm", "BPM")}</Text>
 										<Flex align="center">
 											{bpmState.status === "analyzing" && (
 												<Button
@@ -346,22 +339,6 @@ export const AudioControls: FC = memo(() => {
 								disabled={lyricLines.length === 0}
 							>
 								<MyLocationRegular fontSize={18} />
-							</IconButton>
-						</Tooltip>
-						<Tooltip
-							content={t("audioPanel.expandSpectrogram", "展开 / 收起频谱图")}
-						>
-							<IconButton
-								my="2"
-								ml="0"
-								variant="soft"
-								onClick={() => setSpectrogramVisible(!spectrogramVisible)}
-							>
-								{spectrogramVisible ? (
-									<ChevronDownFilled />
-								) : (
-									<ChevronUpFilled />
-								)}
 							</IconButton>
 						</Tooltip>
 					</Flex>

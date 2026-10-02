@@ -29,6 +29,19 @@ export enum ToolMode {
 }
 
 export const toolModeAtom = atom(ToolMode.Edit);
+
+/**
+ * 「Tap 模式」开关。
+ *
+ * 它不是第四个 ToolMode，而是打轴模式的一个变体 —— 顶栏上多一个 Tab，
+ * 但 `toolModeAtom` 仍然是 `Sync`。这样做是为了让所有
+ * `toolMode === ToolMode.Sync` 的判断（编辑器布局、时间戳显示、Spicy 面板、
+ * SyncKeyBinding …）自动对 Tap 生效，不用逐个加分支，将来加打轴功能也不会漏。
+ *
+ * Tap 模式下的差异全部集中在 `sync-keybinding.tsx` 里：
+ * 强制「起始轴闭合上一字」+「自动跳下一字」，并且 F / J 两个键都能触发。
+ */
+export const tapModeAtom = atom(false);
 export const darkModeAtom = atomWithStorage("darkMode", DarkMode.Auto);
 export const isDarkThemeAtom = atom((get) => {
 	if (get(darkModeAtom) === DarkMode.Auto) return get(autoDarkModeAtom);

@@ -10,6 +10,35 @@ let primaryColor = "#00ffa21e";
 
 let analyzerPort: MessagePort | null = null;
 
+// 可见区间的归一化范围（0~1），用于支持在底部波形条上缩放/平移
+// Visible window in normalized (0~1) time, so the bottom waveform can zoom/pan.
+let viewStart = 0;
+let viewEnd = 1;
+
+// peaks 是按 progress 升序排列的，用二分查找定位可见区间
+// Peaks are sorted ascending by progress, so binary-search the visible window.
+function lowerBoundProgress(tripletCount: number, value: number) {
+	let lo = 0;
+	let hi = tripletCount;
+	while (lo < hi) {
+		const mid = (lo + hi) >> 1;
+		if (peaksBuffer[mid * 3] < value) lo = mid + 1;
+		else hi = mid;
+	}
+	return lo;
+}
+
+function upperBoundProgress(tripletCount: number, value: number) {
+	let lo = 0;
+	let hi = tripletCount;
+	while (lo < hi) {
+		const mid = (lo + hi) >> 1;
+		if (peaksBuffer[mid * 3] <= value) lo = mid + 1;
+		else hi = mid;
+	}
+	return lo;
+}
+
 function drawWaveform() {
 	if (
 		!offscreenCtx ||
@@ -18,6 +47,9 @@ function drawWaveform() {
 		peaksCount === 0
 	)
 		return;
+
+	const viewSpan = viewEnd - viewStart;
+	if (viewSpan <= 0) return;
 
 	offscreenCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -28,22 +60,35 @@ function drawWaveform() {
 	const tripletCount = Math.floor(peaksCount / 3);
 	const AMPLITUDE_SCALE = 0.6;
 
-	for (let i = 0; i < tripletCount; i++) {
+	const firstIdx = Math.max(0, lowerBoundProgress(tripletCount, viewStart) - 1);
+	const lastIdx = Math.min(
+		upperBoundProgress(tripletCount, viewEnd),
+		tripletCount - 1,
+	);
+
+	const mapX = (progress: number) => {
+		const raw = ((progress - viewStart) / viewSpan) * canvasWidth;
+		if (raw < 0) return 0;
+		if (raw > canvasWidth) return canvasWidth;
+		return raw;
+	};
+
+	for (let i = firstIdx; i <= lastIdx; i++) {
 		const progress = peaksBuffer[i * 3];
 		const maxVal = peaksBuffer[i * 3 + 2];
 
-		const x = progress * canvasWidth;
+		const x = mapX(progress);
 		const yMax = halfH - maxVal * halfH * AMPLITUDE_SCALE;
 
-		if (i === 0) offscreenCtx.moveTo(x, yMax);
+		if (i === firstIdx) offscreenCtx.moveTo(x, yMax);
 		else offscreenCtx.lineTo(x, yMax);
 	}
 
-	for (let i = tripletCount - 1; i >= 0; i--) {
+	for (let i = lastIdx; i >= firstIdx; i--) {
 		const progress = peaksBuffer[i * 3];
 		const minVal = peaksBuffer[i * 3 + 1];
 
-		const x = progress * canvasWidth;
+		const x = mapX(progress);
 		const yMin = halfH - minVal * halfH * AMPLITUDE_SCALE;
 
 		offscreenCtx.lineTo(x, yMin);
@@ -86,10 +131,26 @@ self.onmessage = (e: MessageEvent) => {
 			offscreenCtx.scale(dpr, dpr);
 			drawWaveform();
 		}
+	} else if (type === "SET_VIEW") {
+		// viewStart / viewEnd are normalized (0~1) time bounds of the visible window
+		const nextStart = Number(payload?.viewStart);
+		const nextEnd = Number(payload?.viewEnd);
+
+		if (Number.isFinite(nextStart) && Number.isFinite(nextEnd)) {
+			viewStart = Math.max(0, Math.min(nextStart, 1));
+			viewEnd = Math.max(viewStart, Math.min(nextEnd, 1));
+			if (viewEnd - viewStart <= 0) {
+				viewStart = 0;
+				viewEnd = 1;
+			}
+			drawWaveform();
+		}
 	} else if (type === "CLEAR") {
 		peaksCount = 0;
 		peaksCapacity = 16384 * 3;
 		peaksBuffer = new Float32Array(peaksCapacity);
+		viewStart = 0;
+		viewEnd = 1;
 
 		if (offscreenCtx) {
 			offscreenCtx.clearRect(0, 0, canvasWidth, canvasHeight);

@@ -9,15 +9,21 @@
  * https://github.com/amll-dev/amll-ttml-tool/blob/main/LICENSE
  */
 
-import { Checkbox, Grid, Text, TextField } from "@radix-ui/themes";
+import { Checkbox, Grid, Select, Text, TextField } from "@radix-ui/themes";
 import { useAtom } from "jotai";
 import { forwardRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
 	hideObsceneWordsAtom,
 	lyricWordFadeWidthAtom,
+	previewRendererAtom,
+	showFpsCounterAtom,
 	showRomanLinesAtom,
 	showTranslationLinesAtom,
+	spicyBackgroundModeAtom,
+	spicyForceLineSyncedAtom,
+	spicySimpleLyricsModeAtom,
+	type SpicyBackgroundMode,
 } from "$/modules/settings/states/preview";
 import { RibbonFrame, RibbonSection } from "./common";
 
@@ -31,6 +37,17 @@ export const PreviewModeRibbonBar = forwardRef<HTMLDivElement>(
 			useAtom(hideObsceneWordsAtom);
 		const [lyricWordFadeWidth, setLyricWordFadeWidth] = useAtom(
 			lyricWordFadeWidthAtom,
+		);
+		const [previewRenderer, setPreviewRenderer] = useAtom(previewRendererAtom);
+		const [showFps, setShowFps] = useAtom(showFpsCounterAtom);
+		const [simpleLyricsMode, setSimpleLyricsMode] = useAtom(
+			spicySimpleLyricsModeAtom,
+		);
+		const [forceLineSynced, setForceLineSynced] = useAtom(
+			spicyForceLineSyncedAtom,
+		);
+		const [backgroundMode, setBackgroundMode] = useAtom(
+			spicyBackgroundModeAtom,
 		);
 		const { t } = useTranslation();
 
@@ -80,10 +97,80 @@ export const PreviewModeRibbonBar = forwardRef<HTMLDivElement>(
 									setLyricWordFadeWidth(value);
 								}
 							}}
+					/>
+				</Grid>
+			</RibbonSection>
+			<RibbonSection label={t("ribbonBar.previewMode.renderer", "渲染器")}>
+				<Select.Root
+					size="1"
+					value={previewRenderer}
+					onValueChange={(v) => setPreviewRenderer(v as "amll" | "spicy")}
+				>
+					<Select.Trigger style={{ width: "9em" }} />
+					<Select.Content>
+						<Select.Item value="amll">
+							{t("ribbonBar.previewMode.rendererAmll", "AMLL")}
+						</Select.Item>
+						<Select.Item value="spicy">
+							{t("ribbonBar.previewMode.rendererSpicy", "Spicy Lyrics")}
+						</Select.Item>
+					</Select.Content>
+				</Select.Root>
+			</RibbonSection>
+			{previewRenderer === "spicy" ? (
+				<RibbonSection
+					label={t("ribbonBar.previewMode.spicy", "Spicy Lyrics")}
+				>
+					<Grid columns="0fr 0fr" gap="2" gapY="1" flexGrow="1" align="center">
+						<Text wrap="nowrap" size="1">
+							{t("ribbonBar.previewMode.spicyFps", "显示 FPS")}
+						</Text>
+						<Checkbox
+							checked={showFps}
+							onCheckedChange={(v) => setShowFps(!!v)}
 						/>
+						<Text wrap="nowrap" size="1">
+							{t(
+								"ribbonBar.previewMode.spicySimpleLyricsMode",
+								"Simple Lyrics 模式",
+							)}
+						</Text>
+						<Checkbox
+							checked={simpleLyricsMode}
+							onCheckedChange={(v) => setSimpleLyricsMode(!!v)}
+						/>
+						<Text wrap="nowrap" size="1">
+							{t("ribbonBar.previewMode.spicyForceLineSynced", "强制整行同步")}
+						</Text>
+						<Checkbox
+							checked={forceLineSynced}
+							onCheckedChange={(v) => setForceLineSynced(!!v)}
+						/>
+						<Text wrap="nowrap" size="1">
+							{t("ribbonBar.previewMode.spicyBackground", "背景")}
+						</Text>
+						<Select.Root
+							size="1"
+							value={backgroundMode}
+							onValueChange={(v) => setBackgroundMode(v as SpicyBackgroundMode)}
+						>
+							<Select.Trigger style={{ width: "8em" }} />
+							<Select.Content>
+								<Select.Item value="animated">
+									{t("ribbonBar.previewMode.spicyBgAnimated", "动态")}
+								</Select.Item>
+								<Select.Item value="color">
+									{t("ribbonBar.previewMode.spicyBgColor", "取色")}
+								</Select.Item>
+								<Select.Item value="static">
+									{t("ribbonBar.previewMode.spicyBgStatic", "封面")}
+								</Select.Item>
+							</Select.Content>
+						</Select.Root>
 					</Grid>
 				</RibbonSection>
-			</RibbonFrame>
+			) : null}
+		</RibbonFrame>
 		);
 	},
 );

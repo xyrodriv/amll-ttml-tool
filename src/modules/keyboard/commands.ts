@@ -115,6 +115,13 @@ export const cmdSwitchPreviewMode = registerCommand(
 	"View",
 );
 
+export const cmdSwitchTapMode = registerCommand(
+	"switchTapMode",
+	["Shift", "Digit4"],
+	t("settingsDialog.keybindings.switchTapMode"),
+	"View",
+);
+
 // =========================================================================================
 //  打轴操作
 // =========================================================================================
@@ -168,6 +175,17 @@ export const cmdSyncStart = registerCommand(
 	"Sync",
 );
 
+/**
+ * Tap 模式的第二个打击键。和 `cmdSyncStart` 触发的是同一套动作，
+ * 只是换一只手落键，方便跟着音乐左右交替敲。
+ */
+export const cmdTapAlt = registerCommand(
+	"tapAlt",
+	["KeyJ"],
+	t("settingsDialog.keybindings.tapAlt"),
+	"Sync",
+);
+
 export const cmdSyncNext = registerCommand(
 	"syncNext",
 	["KeyG"],
@@ -179,6 +197,20 @@ export const cmdSyncEnd = registerCommand(
 	"syncEnd",
 	["KeyH"],
 	t("settingsDialog.keybindings.syncEnd"),
+	"Sync",
+);
+
+export const cmdNudgeWordBackward = registerCommand(
+	"nudgeWordBackward",
+	["Alt", "ArrowLeft"],
+	t("settingsDialog.keybindings.nudgeWordBackward"),
+	"Sync",
+);
+
+export const cmdNudgeWordForward = registerCommand(
+	"nudgeWordForward",
+	["Alt", "ArrowRight"],
+	t("settingsDialog.keybindings.nudgeWordForward"),
 	"Sync",
 );
 

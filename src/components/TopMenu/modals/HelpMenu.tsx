@@ -15,6 +15,9 @@ const HelpMenuItems = () => {
 
 	return (
 		<>
+			<DropdownMenu.Item onSelect={menu.onOpenSourceFork}>
+				{t("topBar.menu.sourceCode", "源代码 (此版本)")}
+			</DropdownMenu.Item>
 			<DropdownMenu.Item onSelect={menu.onOpenGitHub}>GitHub</DropdownMenu.Item>
 			<DropdownMenu.Item onSelect={menu.onOpenWiki}>
 				{t("topBar.menu.helpDoc", "使用说明")}

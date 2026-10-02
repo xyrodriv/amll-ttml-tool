@@ -12,6 +12,23 @@
 
 </div>
 
+## About this fork
+
+This deployment is a customized fork maintained at
+**[github.com/xyrodriv/amll-ttml-tool](https://github.com/xyrodriv/amll-ttml-tool)**,
+forked from [github.com/amll-dev/amll-ttml-tool](https://github.com/amll-dev/amll-ttml-tool)
+(the original upstream project, © Steve Xiao and the AMLL contributors).
+
+The live web build is at **[amll-ttml-tool-clone.vercel.app](https://amll-ttml-tool-clone.vercel.app)**
+and auto-redeploys on every push to the fork's `main` branch.
+
+### Credits & licenses
+- Upstream editor: [`amll-dev/amll-ttml-tool`](https://github.com/amll-dev/amll-ttml-tool) — **GPLv3**.
+- Spicy Lyrics preview renderer: derived from [`spicy-lyrics`](https://github.com/SpikeJS/spicy-lyrics)
+  (and the NaeNae React rewrite) — **AGPLv3** (the combined work inherits AGPLv3 per §13).
+- `@kawarp/core` (Apple-Music-style fluid backdrop) — **MIT**.
+- Modified source of this fork is published at the link above for compliance with AGPLv3 §13.
+
 ## 使用
 
 > [!WARNING]

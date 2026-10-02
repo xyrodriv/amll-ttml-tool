@@ -10,9 +10,14 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+dist-*
 *.local
 **/target
 /.tauri
+
+# AJ's personal / build-only folders (not source)
+.backup
+.workbuddy-ai
 
 # Editor directories and files
 .vscode/*
@@ -26,3 +31,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.vercel
+.env*

@@ -4,7 +4,9 @@ import { type FC, useCallback } from "react";
 import { audioEngine } from "$/modules/audio/audio-engine";
 import type { LyricLine, LyricWord, LyricWordBase } from "$/types/ttml";
 import {
+	buildRubySelectionId,
 	findNextWord,
+	findPrevWord,
 	getCurrentLineLocation,
 	getCurrentLocation,
 	getFirstSynchronizableUnit,
@@ -12,6 +14,7 @@ import {
 	getSynchronizableUnits,
 	isSynchronizableLine,
 } from "$/modules/lyric-editor/utils/lyric-states";
+import { normalizeLineTime } from "$/modules/lyric-editor/utils/normalize-line-time";
 import {
 	SyncJudgeMode,
 	smartFirstWordAtom,
@@ -19,7 +22,11 @@ import {
 	syncJudgeModeAtom,
 } from "$/modules/settings/states";
 import {
+	autoAdvanceOnMarkBeginAtom,
+	autoClosePrevAcrossLinesAtom,
+	autoClosePrevOnMarkBeginAtom,
 	currentEmptyBeatAtom,
+	nudgeStepMsAtom,
 	smartFirstWordActiveIdAtom,
 	syncTimeOffsetAtom,
 } from "$/modules/settings/states/sync";
@@ -35,11 +42,15 @@ import {
 	keySyncEndAtom,
 	keySyncNextAtom,
 	keySyncStartAtom,
+	keyNudgeWordBackwardAtom,
+	keyNudgeWordForwardAtom,
+	keyTapAltAtom,
 } from "$/states/keybindings.ts";
 import {
 	lyricLinesAtom,
 	selectedLinesAtom,
 	selectedWordsAtom,
+	tapModeAtom,
 } from "$/states/main.ts";
 import {
 	type KeyBindingEvent,
@@ -87,6 +98,28 @@ const setUnitEndTime = (
 		return;
 	}
 	word.endTime = time;
+};
+
+/** 整体平移一个时间单元（整字或音节），未打轴（0/0）的单元不动 */
+const shiftUnit = (
+	unit: { startTime: number; endTime: number },
+	delta: number,
+) => {
+	if (unit.startTime === 0 && unit.endTime === 0) return;
+	unit.startTime = Math.max(0, unit.startTime + delta);
+	unit.endTime = Math.max(0, unit.endTime + delta);
+};
+
+/** 整体平移一个字；带音节的字连同所有音节一起平移 */
+const shiftWord = (word: LyricWord, delta: number) => {
+	if (word.ruby && word.ruby.length > 0) {
+		for (const ruby of word.ruby) {
+			shiftUnit(ruby, delta);
+		}
+		updateRubyParentTime(word);
+		return;
+	}
+	shiftUnit(word, delta);
 };
 
 export const SyncKeyBinding: FC = () => {
@@ -263,9 +296,9 @@ export const SyncKeyBinding: FC = () => {
 
 	// 记录时间戳（主要打轴按键）
 
-	useKeyBindingAtom(
-		keySyncStartAtom,
-		(evt) => {
+	// 打一次轴（起始轴）。Tap 模式下 F 和 J 都走这里，所以抽成具名函数。
+	const tapMarkBegin = useCallback(
+		(evt: KeyBindingEvent) => {
 			const location = getCurrentLocation(store);
 			if (!location) return;
 			const currentTime = calcJudgeTime(evt);
@@ -274,6 +307,20 @@ export const SyncKeyBinding: FC = () => {
 			if (smartFirstWord && location.isFirstWord) {
 				store.set(smartFirstWordActiveIdAtom, location.word.id);
 			}
+
+			// Tap 模式就是为「一路按着敲」设计的，所以这两个开关强制打开，
+			// 不管用户在时间页里存的是关还是开（存的值本身不动）。
+			const tapMode = store.get(tapModeAtom);
+			const autoClosePrev =
+				tapMode || store.get(autoClosePrevOnMarkBeginAtom);
+			// “跨行也闭合上一行末字”是“自动闭合上一字”的附加项，母开关关着时不生效。
+			// Tap 模式下母开关恒为开，所以它直接听用户自己的开关。
+			const autoCloseAcrossLines = tapMode
+				? store.get(autoClosePrevAcrossLinesAtom)
+				: autoClosePrev && store.get(autoClosePrevAcrossLinesAtom);
+			// “打完自动跳下一字”只在“自动闭合上一字”也开着时才生效
+			const autoAdvance =
+				tapMode || (autoClosePrev && store.get(autoAdvanceOnMarkBeginAtom));
 
 			store.set(lyricLinesAtom, (state) =>
 				produce(state, (state) => {
@@ -287,11 +334,47 @@ export const SyncKeyBinding: FC = () => {
 						location.rubyIndex,
 						currentTime,
 					);
+
+					// 起始轴时把上字的 end 也一起打到当前位置（开“自动闭合上字”时）
+					// 默认只在同一行内闭合：换行时把上一行末字的 end 顶到下一行首字的
+					// begin，会让上一行末字凭空多出一段时长。
+					// 开了“跨行也闭合”之后才允许跨行，此时上一行的 endTime 也一起补上。
+					if (autoClosePrev) {
+						const prev = findPrevWord(
+							state.lyricLines,
+							location.lineIndex,
+							location.syncIndex,
+						);
+						const acrossLines = prev
+							? prev.lineIndex !== location.lineIndex
+							: false;
+						if (prev && (!acrossLines || autoCloseAcrossLines)) {
+							setUnitEndTime(
+								prev.line,
+								prev.unit.wordIndex,
+								prev.unit.rubyIndex,
+								currentTime,
+							);
+							// 上一行的结束时间就是下一行首字的开始时间，
+							// 和“下一轴”(G) 换行时的处理保持一致
+							if (acrossLines) {
+								prev.line.endTime = currentTime;
+							}
+						}
+					}
 				}),
 			);
+
+			// 写完再把光标推到下一字：必须在 store.set 之后，
+			// 这样 findNextWord 读到的是刚落盘的新时间
+			if (autoAdvance) moveToNextWord();
 		},
-		[store],
+		[store, moveToNextWord],
 	);
+
+	useKeyBindingAtom(keySyncStartAtom, tapMarkBegin, [tapMarkBegin]);
+	// Tap 模式的第二打击键，和 F 完全等价，方便左右手交替
+	useKeyBindingAtom(keyTapAltAtom, tapMarkBegin, [tapMarkBegin]);
 	useKeyBindingAtom(
 		keySyncNextAtom,
 		(evt) => {
@@ -413,6 +496,83 @@ export const SyncKeyBinding: FC = () => {
 			moveToNextWord();
 		},
 		[store, moveToNextWord],
+	);
+
+	// Alt + ←/→ 微调所选内容的时间
+	const nudgeSelection = useCallback(
+		(deltaMs: number) => {
+			if (deltaMs === 0) return;
+
+			const selectedWords = store.get(selectedWordsAtom);
+			const selectedLines = store.get(selectedLinesAtom);
+
+			if (selectedWords.size === 0 && selectedLines.size === 0) return;
+
+			store.set(lyricLinesAtom, (state) =>
+				produce(state, (state) => {
+					if (selectedWords.size > 0) {
+						for (const line of state.lyricLines) {
+							let lineChanged = false;
+
+							for (const word of line.words) {
+								const rubies = word.ruby;
+
+								if (rubies && rubies.length > 0) {
+									let rubyChanged = false;
+									for (let r = 0; r < rubies.length; r++) {
+										if (
+											selectedWords.has(buildRubySelectionId(word.id, r))
+										) {
+											shiftUnit(rubies[r], deltaMs);
+											rubyChanged = true;
+										}
+									}
+									if (rubyChanged) {
+										updateRubyParentTime(word);
+										lineChanged = true;
+										continue;
+									}
+								}
+
+								if (selectedWords.has(word.id)) {
+									shiftWord(word, deltaMs);
+									lineChanged = true;
+								}
+							}
+
+							if (lineChanged) normalizeLineTime(line);
+						}
+						return;
+					}
+
+					// 没选字时退化为整行平移
+					for (const line of state.lyricLines) {
+						if (!selectedLines.has(line.id)) continue;
+						for (const word of line.words) {
+							shiftWord(word, deltaMs);
+						}
+						shiftUnit(line, deltaMs);
+						normalizeLineTime(line);
+					}
+				}),
+			);
+		},
+		[store],
+	);
+
+	useKeyBindingAtom(
+		keyNudgeWordBackwardAtom,
+		() => {
+			nudgeSelection(-store.get(nudgeStepMsAtom));
+		},
+		[store, nudgeSelection],
+	);
+	useKeyBindingAtom(
+		keyNudgeWordForwardAtom,
+		() => {
+			nudgeSelection(store.get(nudgeStepMsAtom));
+		},
+		[store, nudgeSelection],
 	);
 
 	return null;

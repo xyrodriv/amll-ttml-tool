@@ -78,27 +78,68 @@
 			"showRoman": "Show Romanization",
 			"maskObsceneWords": "Mask Obscene Words",
 			"word": "Word",
-			"fadeWidth": "Fade Width"
+			"fadeWidth": "Fade Width",
+			"renderer": "Renderer",
+			"rendererAmll": "AMLL",
+			"rendererSpicy": "Spicy Lyrics",
+			"spicy": "Spicy Lyrics",
+			"spicyFps": "Show FPS",
+			"spicySimpleLyricsMode": "Simple Lyrics Mode",
+			"spicyForceLineSynced": "Force Line-Synced",
+			"spicyBackground": "Background",
+			"spicyBgAnimated": "Animated",
+			"spicyBgColor": "Color",
+			"spicyBgStatic": "Cover"
 		},
 		"syncMode": {
 			"currentEmptyBeat": "Empty Beat",
 			"syncAdjustment": "Timing Adjustment",
 			"timeOffset": "Time Offset",
+			"nudgeStep": "Nudge Step",
 			"assistSettings": "Assistant Settings",
 			"showTimestampUpdate": "Show Timestamp Updates",
 			"touchSyncPanel": "Touch Sync Panel",
 			"bgLyricIgnoreSync": "Ignore Background Vocals",
+			"autoClosePrevOnMarkBegin": "Mark Begin closes previous word",
+			"lockedInTapMode": "Forced on in Tap mode",
+			"spicyPreview": "Spicy Preview",
+			"toggleSpicyLyrics": "Toggle Spicy Lyrics",
+			"spicyPanelTitle": "Spicy Lyrics",
+			"closeSpicyPanel": "Close preview",
+			"refreshSpicyPanel": "Refresh preview",
+			"lite": "Lite mode",
+			"liteSpicyPanel": "Lite mode — fewer animated lines, no glow. Turn off for the full effect.",
+			"autoRefresh": "Auto-refresh",
+			"autoRefreshOff": "Off",
+			"resizeSpicyPanel": "Resize preview",
+			"autoClosePrevAcrossLines": "…also across line breaks",
+			"autoClosePrevAcrossLinesHint": "Closes the previous line's last word when you Mark Begin on the first word of the next line",
+			"autoAdvanceOnMarkBegin": "Auto-advance to next word after Mark Begin",
+			"autoAdvanceOnMarkBeginHint": "Requires \"Mark Begin closes previous word\" to be on",
 			"displayOptions": "Display Options",
 			"showTimestamps": "Show Timestamps",
 			"highlightActiveWord": "Highlight Active Word",
 			"highlightErrors": "Highlight Errors",
+			"showSyncedWordMarkers": "Synced Word Markers",
 			"showPerWordRomanization": "Show Per-Word Romanization",
 			"keyBindingReference": "Hotkey Cheatsheet",
 			"startSync": "Mark Begin",
 			"continuousSync": "Commit",
-			"endSync": "Mark End"
+			"endSync": "Mark End",
+			"nudgeBackward": "Nudge earlier",
+			"nudgeForward": "Nudge later"
 		},
-		"loading": "Panel loading…"
+		"autoSyllable": {
+			"title": "Syllables",
+			"enable": "Auto-split English syllables",
+			"splitCount": "Split {{count}} words",
+			"hint": "Splits English words into word.ruby[] syllables — undo with Ctrl+Z"
+		},
+		"loading": "Panel loading…",
+		"timeShift": {
+			"title": "Time Shift",
+			"open": "Time Shift..."
+		}
 	},
 	"settings": {
 		"common": {
@@ -120,6 +161,8 @@
 				"line3": "Apple Music style writes translations into iTunesMetadata in <head>,",
 				"line4": "but x-bg does not have line time."
 			},
+			"allowStackedBgVocals": "Allow stacked background vocals",
+			"allowStackedBgVocalsDesc": "When saving, consecutive background vocal lines are all written into the same line (multiple x-bg spans); when opening a file, stacked background vocals are split back into separate lines. When off, only the first background line of each line keeps the background flag.",
 			"translationOutputModeOptions": {
 				"amll": "AMLL Style",
 				"appleMusic": "Apple Music Style"
@@ -209,6 +252,7 @@
 		"modeBtns": {
 			"edit": "Edit",
 			"sync": "Time",
+			"tap": "Tap",
 			"preview": "Preview"
 		},
 		"appName": "Apple Music-like Lyrics TTML Tool",
@@ -263,7 +307,8 @@
 				"toLrcfySylb": "Export to Lyricify Syllable",
 				"toASS": "Export to ASS subtitles"
 			},
-			"syllableSmoothing": "Smooth Timeline..."
+			"syllableSmoothing": "Smooth Timeline...",
+			"sourceCode": "Source code (this fork)"
 		}
 	},
 	"header": {
@@ -308,6 +353,8 @@
 			"switchEditMode": "Mode Switch - Switch to Edit Mode",
 			"switchSyncMode": "Mode Switch - Switch to Timing Mode",
 			"switchPreviewMode": "Mode Switch - Switch to Preview Mode",
+			"switchTapMode": "Mode Switch - Switch to Tap Mode",
+			"tapAlt": "Timing - Tap (alternate key)",
 			"moveNextWord": "Timing - Move to next word",
 			"movePrevWord": "Timing - Move to previous word",
 			"moveNextLine": "Timing - Move to next line start",
@@ -319,6 +366,8 @@
 			"syncEnd": "Timing - Mark end",
 			"moveFirstWordAndPlay": "Timing - Move to first word and play",
 			"moveLastWordAndPlay": "Timing - Move to last word and play",
+			"nudgeWordBackward": "Timing - Nudge selection earlier",
+			"nudgeWordForward": "Timing - Nudge selection later",
 			"playPause": "Playback - Play/Pause",
 			"seekForward": "Playback - Seek forward 5s",
 			"seekBackward": "Playback - Seek backward 5s",
@@ -704,7 +753,12 @@
 			"showBeatLines": "Show beats on spectrogram",
 			"slidingWindowTip": "Only the last 10 calibration points are used to calculate BPM",
 			"spectrogramCalibration": "Calibrate with Spectrogram",
-			"clickOnSpectrogramToCalibrate": "Click on spectrogram to calibrate"
+			"clickOnSpectrogramToCalibrate": "Click on spectrogram to calibrate",
+			"clickToEdit": "Click to type a BPM",
+			"editLabel": "BPM value",
+			"metronome": "Metronome",
+			"metronomeVolume": "Metronome volume",
+			"metronomeOnlyWhenPlaying": "Only sounds while the track is playing"
 		}
 	},
 	"syllableSmoothingDialog": {
@@ -719,5 +773,11 @@
 		"mergeSyllables": "Merge Syllables",
 		"mergeSyllablesHint": "Produces Apple Music-like lyrics where CJK characters are merged together, but not suitable for regular use.",
 		"description": "Smooth the timeline for CJK syllables.\nDoes not smooth syllables from other languages."
+	},
+	"statsBar": {
+		"words": "Words",
+		"lines": "Lines",
+		"ariaLabel": "{synced} of {total} words synced",
+		"allSynced": "All words synced"
 	}
 }

@@ -11,6 +11,10 @@ interface UseWaveformAnalyzerProps {
 	canvasRef: React.RefObject<HTMLCanvasElement | null>;
 	sliderWidthPx: number;
 	engineState: string;
+	/** 可见区间的归一化起始时间（0~1） */
+	viewStart: number;
+	/** 可见区间的归一化结束时间（0~1） */
+	viewEnd: number;
 }
 
 export const useWaveformAnalyzer = ({
@@ -19,6 +23,8 @@ export const useWaveformAnalyzer = ({
 	canvasRef,
 	sliderWidthPx,
 	engineState,
+	viewStart,
+	viewEnd,
 }: UseWaveformAnalyzerProps) => {
 	const setPcmDataReady = useSetAtom(pcmDataReadyAtom);
 	const setBpmState = useSetAtom(bpmStateAtom);
@@ -125,6 +131,17 @@ export const useWaveformAnalyzer = ({
 			[mc.port1],
 		);
 	}, [audioFile, setPcmDataReady, setBpmState, canvasRef, wsContainerRef]);
+
+	// 同步可见区间（缩放 / 平移）到渲染 worker
+	// Keep the render worker in sync with the visible window (zoom / pan).
+	useEffect(() => {
+		if (!rendererWorkerRef.current) return;
+
+		rendererWorkerRef.current.postMessage({
+			type: "SET_VIEW",
+			payload: { viewStart, viewEnd },
+		});
+	}, [viewStart, viewEnd, audioFile]);
 
 	// 处理窗口大小变化并触发防抖重绘
 	useEffect(() => {

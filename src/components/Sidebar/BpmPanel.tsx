@@ -14,18 +14,29 @@ import {
 	Checkbox,
 	Flex,
 	IconButton,
+	Slider,
 	Text,
 	Tooltip,
 } from "@radix-ui/themes";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { type FC, useCallback, useId, useRef } from "react";
+import {
+	type FC,
+	useCallback,
+	useEffect,
+	useId,
+	useRef,
+	useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { KeyBinding } from "$/components/KeyBinding";
 import { useBpmControl, useBpmTapEngine } from "$/modules/audio/hooks";
 import {
 	audioEngineStateAtom,
+	bpmScaleAtom,
 	bpmStateAtom,
 	hasSeenTapWindowTipAtom,
+	metronomeEnabledAtom,
+	metronomeVolumeAtom,
 } from "$/modules/audio/states";
 import { showBeatLinesAtom } from "$/modules/spectrogram/states";
 import { keySyncNextAtom } from "$/states/keybindings";
@@ -42,9 +53,12 @@ export const BpmPanel: FC = () => {
 	const { t } = useTranslation();
 	const followRateCheckboxId = useId();
 	const showBeatLinesCheckboxId = useId();
+	const metronomeCheckboxId = useId();
 	const {
 		bpmState,
+		originalBpm,
 		currentBpm,
+		playbackRate,
 		followPlaybackRate,
 		setFollowPlaybackRate,
 		isAdjusted,
@@ -63,9 +77,55 @@ export const BpmPanel: FC = () => {
 		isHighlighted,
 	} = useBpmTapEngine();
 
+	const setBpmScale = useSetAtom(bpmScaleAtom);
+
+	const [bpmDraft, setBpmDraft] = useState<string | null>(null);
+	const bpmInputRef = useRef<HTMLInputElement>(null);
+
+	const effectiveRate = followPlaybackRate ? playbackRate : 1;
+
+	const startEditBpm = useCallback(() => {
+		if (currentBpm === null) return;
+		setBpmDraft(String(currentBpm));
+	}, [currentBpm]);
+
+	const cancelEditBpm = useCallback(() => setBpmDraft(null), []);
+
+	const commitBpm = useCallback(() => {
+		if (
+			bpmDraft === null ||
+			currentBpm === null ||
+			originalBpm === null ||
+			originalBpm <= 0 ||
+			effectiveRate <= 0
+		) {
+			setBpmDraft(null);
+			return;
+		}
+		const parsed = Number(bpmDraft);
+		if (!Number.isFinite(parsed) || parsed <= 0) {
+			setBpmDraft(null);
+			return;
+		}
+		// 1–999 is a sane range for any real piece of music; we can tighten later
+		// if anyone ever asks for 1000+ BPM. Floor at 1 so the scale stays finite.
+		const target = Math.max(1, Math.min(999, Math.round(parsed)));
+		setBpmScale(target / (originalBpm * effectiveRate));
+		setBpmDraft(null);
+	}, [bpmDraft, currentBpm, originalBpm, effectiveRate, setBpmScale]);
+
+	useEffect(() => {
+		if (bpmDraft !== null && bpmInputRef.current) {
+			bpmInputRef.current.focus();
+			bpmInputRef.current.select();
+		}
+	}, [bpmDraft]);
+
 	const setBpmState = useSetAtom(bpmStateAtom);
 	const engineState = useAtomValue(audioEngineStateAtom);
 	const [showBeatLines, setShowBeatLines] = useAtom(showBeatLinesAtom);
+	const [metronomeEnabled, setMetronomeEnabled] = useAtom(metronomeEnabledAtom);
+	const [metronomeVolume, setMetronomeVolume] = useAtom(metronomeVolumeAtom);
 	const [hasSeenTapWindowTip, setHasSeenTapWindowTip] = useAtom(
 		hasSeenTapWindowTipAtom,
 	);
@@ -150,16 +210,72 @@ export const BpmPanel: FC = () => {
 							</Button>
 						</Tooltip>
 
-						<Text
-							size={isAnalyzing ? "6" : "8"}
-							weight="bold"
-							style={{
-								fontFamily: "var(--default-font-family-mono)",
-								fontVariantNumeric: "tabular-nums",
-							}}
-						>
-							{bpmValueText}
-						</Text>
+						{bpmDraft !== null ? (
+							<input
+								ref={bpmInputRef}
+								type="number"
+								inputMode="numeric"
+								min={1}
+								max={999}
+								value={bpmDraft}
+								onChange={(event) => setBpmDraft(event.target.value)}
+								onBlur={commitBpm}
+								onKeyDown={(event) => {
+									if (event.key === "Enter") {
+										event.preventDefault();
+										commitBpm();
+									} else if (event.key === "Escape") {
+										event.preventDefault();
+										cancelEditBpm();
+									}
+								}}
+								aria-label={t("sidebar.bpm.editLabel", "BPM 值")}
+								style={{
+									width: "5.5em",
+									fontFamily: "var(--default-font-family-mono)",
+									fontVariantNumeric: "tabular-nums",
+									fontSize:
+										"var(--font-size-" +
+										(isAnalyzing ? "6" : "8") +
+										")",
+									fontWeight: "bold",
+									color: "var(--accent-12)",
+									textAlign: "center",
+									background: "transparent",
+									border: "1px solid var(--accent-9)",
+									borderRadius: "var(--radius-2, 6px)",
+									padding: "2px 4px",
+									outline: "none",
+								}}
+							/>
+						) : (
+							<Tooltip content={t("sidebar.bpm.clickToEdit", "点击输入 BPM")}>
+								<Text
+									size={isAnalyzing ? "6" : "8"}
+									weight="bold"
+									role="button"
+									tabIndex={isCompleted ? 0 : -1}
+									onClick={isCompleted ? startEditBpm : undefined}
+									onKeyDown={(event) => {
+										if (
+											isCompleted &&
+											(event.key === "Enter" || event.key === " ")
+										) {
+											event.preventDefault();
+											startEditBpm();
+										}
+									}}
+									style={{
+										fontFamily: "var(--default-font-family-mono)",
+										fontVariantNumeric: "tabular-nums",
+										cursor: isCompleted ? "text" : "default",
+										userSelect: "none",
+									}}
+								>
+									{bpmValueText}
+								</Text>
+							</Tooltip>
+						)}
 
 						<Tooltip content={t("sidebar.bpm.double", "加倍 BPM")}>
 							<Button
@@ -248,6 +364,67 @@ export const BpmPanel: FC = () => {
 						</label>
 					</Text>
 				</Flex>
+
+				<Flex align="center" gap="2">
+					<Checkbox
+						id={metronomeCheckboxId}
+						checked={metronomeEnabled}
+						onCheckedChange={(checked) =>
+							setMetronomeEnabled(Boolean(checked))
+						}
+					/>
+					<Text size="2" asChild>
+						<label
+							htmlFor={metronomeCheckboxId}
+							style={{ userSelect: "none", cursor: "pointer" }}
+						>
+							{t("sidebar.bpm.metronome", "节拍器")}
+						</label>
+					</Text>
+				</Flex>
+
+				{metronomeEnabled && (
+					<Flex align="center" gap="3" pl="1">
+						<Text size="1" color="gray" style={{ whiteSpace: "nowrap" }}>
+							{t("sidebar.bpm.metronomeVolume", "节拍器音量")}
+						</Text>
+						<Slider
+							size="1"
+							value={[metronomeVolume]}
+							min={0}
+							max={1}
+							step={0.01}
+							onValueChange={([value]) => setMetronomeVolume(value)}
+							aria-label={t("sidebar.bpm.metronomeVolume", "节拍器音量")}
+							style={{ flex: 1 }}
+						/>
+						<Text
+							size="1"
+							color="gray"
+							style={{
+								fontFamily: "var(--default-font-family-mono)",
+								fontVariantNumeric: "tabular-nums",
+								minWidth: "2.5em",
+								textAlign: "right",
+							}}
+						>
+							{Math.round(metronomeVolume * 100)}
+						</Text>
+					</Flex>
+				)}
+
+				{metronomeEnabled && (
+					<Text
+						size="1"
+						color="gray"
+						style={{ paddingLeft: "var(--space-1)" }}
+					>
+						{t(
+							"sidebar.bpm.metronomeOnlyWhenPlaying",
+							"仅在音轨播放时发声",
+						)}
+					</Text>
+				)}
 
 				{!hasSeenTapWindowTip && (isKeyTapMode || isSpectrogramTapMode) && (
 					<Callout.Root

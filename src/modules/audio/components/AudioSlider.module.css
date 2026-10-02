@@ -6,6 +6,12 @@
 	position: relative;
 	z-index: 1;
 }
+
+/* 中键拖动平移时间轴时的抓握手感 */
+.waveformContainerPanning,
+.waveformContainerPanning * {
+	cursor: grabbing !important;
+}
 .waveformContainer ::part(progress) {
 	background-color: var(--accent-a4);
 }
@@ -96,6 +102,34 @@
 .regionHandleRight {
 	right: 0;
 	transform: translateX(50%);
+}
+
+/* 已打轴字的标记层：整体用 transform 平移，避免逐帧重渲染 */
+.syncedWordMarkersLayer {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	z-index: 3;
+	will-change: transform;
+}
+
+/* 整字标记：深色模式下是浅色，浅色模式下是深色（跟随主题自动反转） */
+.syncedWordMarker {
+	position: absolute;
+	top: 0;
+	width: 1px;
+	height: 100%;
+	background-color: var(--gray-12);
+	opacity: 0.7;
+}
+
+/* 音节标记：两种主题下都保持紫色 */
+.syncedWordMarkerSyllable {
+	background-color: var(--purple-9, #8e4ec6);
+	opacity: 1;
 }
 
 .selectedLyricRegion {

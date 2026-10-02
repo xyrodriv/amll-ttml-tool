@@ -51,6 +51,7 @@ import { openSidebarTabsAtom, toggleTabAtom } from "$/states/sidebar.ts";
 import { type LyricLine, type LyricWord, newLyricLine } from "$/types/ttml";
 import { msToTimestamp, parseTimespan } from "$/utils/timestamp.ts";
 import { RibbonFrame, RibbonSection } from "./common";
+import { TimeShiftSection } from "./time-shift";
 
 const MULTIPLE_VALUES = Symbol("multiple-values");
 
@@ -917,6 +918,7 @@ export const EditModeRibbonBar: FC = forwardRef<HTMLDivElement>(
 						</Flex>
 					</Flex>
 				</RibbonSection>
+				<TimeShiftSection />
 			</RibbonFrame>
 		);
 	},

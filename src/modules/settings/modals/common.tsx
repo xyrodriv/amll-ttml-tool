@@ -33,6 +33,7 @@ import type { StretchAlgorithm } from "$/modules/ffmpeg/types";
 import { applyDefaultTtmlAuthorMetadata } from "$/modules/project/logic/default-metadata";
 import { GithubIcon } from "$/modules/project/modals/PlatformIcons";
 import {
+	allowStackedBgVocalsAtom,
 	autosaveEnabledAtom,
 	autosaveIntervalAtom,
 	autosaveLimitAtom,
@@ -61,6 +62,9 @@ export const SettingsCommonTab = () => {
 	const [layoutMode, setLayoutMode] = useAtom(layoutModeAtom);
 	const [translationOutputMode, setTranslationOutputMode] = useAtom(
 		translationOutputModeAtom,
+	);
+	const [allowStackedBgVocals, setAllowStackedBgVocals] = useAtom(
+		allowStackedBgVocalsAtom,
 	);
 	const [syncJudgeMode, setSyncJudgeMode] = useAtom(syncJudgeModeAtom);
 	const [keyBindingTriggerMode, setKeyBindingTriggerMode] = useAtom(
@@ -241,6 +245,22 @@ export const SettingsCommonTab = () => {
 								</Select.Item>
 							</Select.Content>
 						</Select.Root>
+					}
+				/>
+
+				<SettingsRow
+					asLabel
+					icon={<Stack24Regular />}
+					title={t("settings.common.allowStackedBgVocals", "允许叠加背景歌词")}
+					description={t(
+						"settings.common.allowStackedBgVocalsDesc",
+						"保存时把连续的多条背景歌词全部写进同一行（多个 x-bg），打开文件时也会把叠加的背景歌词拆回多条背景行。关闭时只有每行的第一条背景歌词会保留背景标记。",
+					)}
+					action={
+						<Switch
+							checked={allowStackedBgVocals}
+							onCheckedChange={setAllowStackedBgVocals}
+						/>
 					}
 				/>
 			</SettingsGroup>

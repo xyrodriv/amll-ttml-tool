@@ -1,0 +1,6 @@
+dist
+dist-*
+.backup
+.workbuddy-ai
+src-tauri
+docs

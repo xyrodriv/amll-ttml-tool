@@ -3,7 +3,15 @@ import { useCallback, useRef, useState } from "react";
 import { msToTimestamp } from "$/utils/timestamp";
 import { currentDurationAtom } from "../states";
 
-export const useHoverGuide = (sliderWidthPx: number) => {
+/**
+ * @param viewStartSec 可见窗口的起始时间（秒），缩放后非 0
+ * @param viewSpanSec  可见窗口覆盖的时长（秒）；不传则视为展示整条音频
+ */
+export const useHoverGuide = (
+	sliderWidthPx: number,
+	viewStartSec = 0,
+	viewSpanSec?: number,
+) => {
 	const currentDuration = useAtomValue(currentDurationAtom);
 	const [hoverState, setHoverState] = useState({
 		x: 0,
@@ -32,7 +40,11 @@ export const useHoverGuide = (sliderWidthPx: number) => {
 			const clampedX = Math.max(0, Math.min(x, rect.width));
 			const isNearRight = rect.width - clampedX < 80;
 			const progress = clampedX / rect.width;
-			const timeMs = progress * currentDuration;
+			// 缩放后波形只展示可见窗口，需要把窗口偏移算进去
+			const timeMs =
+				viewSpanSec === undefined
+					? progress * currentDuration
+					: (viewStartSec + progress * viewSpanSec) * 1000;
 
 			setHoverState({
 				x: clampedX,
@@ -41,7 +53,7 @@ export const useHoverGuide = (sliderWidthPx: number) => {
 				isVisible: true,
 			});
 		},
-		[currentDuration, sliderWidthPx],
+		[currentDuration, sliderWidthPx, viewStartSec, viewSpanSec],
 	);
 
 	const handleContainerMouseLeave = useCallback(() => {

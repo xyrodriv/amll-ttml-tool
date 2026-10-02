@@ -77,3 +77,20 @@ export const splitWordIgnoreCaseAtom = atomWithStorage(
 	"splitWord.ignoreCase",
 	true,
 );
+
+/**
+ * 「自动拆分英文音节」开关
+ *
+ * 打开时把全篇可拆的英文单词拆成 `word.ruby[]` 音节，关闭时只还原本开关生成的音节。
+ * 两个方向都是一次可撤销的操作。
+ */
+export const autoSplitEnglishSyllablesAtom = atomWithStorage(
+	"segmentation.autoSplitEnglishSyllables",
+	false,
+);
+
+/** 自动拆音节使用的语言，默认 en-us */
+export const autoSplitSyllablesLangAtom = atomWithStorage(
+	"segmentation.autoSplitSyllablesLang",
+	"en-us",
+);

@@ -233,6 +233,14 @@ export const useTopMenuActions = () => {
 		}
 	}, []);
 
+	const onOpenSourceFork = useCallback(async () => {
+		if (import.meta.env.TAURI_ENV_PLATFORM) {
+			await open("https://github.com/xyrodriv/amll-ttml-tool");
+		} else {
+			window.open("https://github.com/xyrodriv/amll-ttml-tool");
+		}
+	}, []);
+
 	const onOpenWiki = useCallback(async () => {
 		if (import.meta.env.TAURI_ENV_PLATFORM) {
 			await open("https://github.com/amll-dev/amll-ttml-tool/wiki");
@@ -495,6 +503,7 @@ export const useTopMenuActions = () => {
 		onCheckRomanizationWarnings,
 		onOpenLatencyTest,
 		onOpenGitHub,
+		onOpenSourceFork,
 		onOpenWiki,
 	};
 };

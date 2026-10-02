@@ -38,11 +38,16 @@ import styles from "./App.module.css";
 import DarkThemeDetector from "./components/DarkThemeDetector";
 import RibbonBar from "./components/RibbonBar";
 import { Sidebar } from "./components/Sidebar/index.tsx";
+import { SpicySyncPanel } from "./components/SpicySyncPanel/index.tsx";
+import { StatsBar } from "./components/StatsBar/index.tsx";
 import { TitleBar } from "./components/TitleBar";
 import { useFileOpener } from "./hooks/useFileOpener.ts";
 import AudioControls from "./modules/audio/components/index.tsx";
+import { useAudioCoverArt } from "./modules/audio/hooks/useAudioCoverArt.ts";
 import { useAudioFeedback } from "./modules/audio/hooks/useAudioFeedback.ts";
 import { useMediaSession } from "./modules/audio/hooks/useMediaSession.ts";
+import { useMetronome } from "./modules/audio/hooks/useMetronome.ts";
+import { showSpicySyncPanelAtom } from "./modules/settings/states/sync.ts";
 import { DragGhostRenderer } from "./modules/lyric-drag/DragGhostRenderer.tsx";
 import { SyncKeyBinding } from "./modules/lyric-editor/components/sync-keybinding.tsx";
 import { AutosaveManager } from "./modules/project/autosave/AutosaveManager.tsx";
@@ -55,6 +60,7 @@ import {
 	customBackgroundMaskAtom,
 	customBackgroundOpacityAtom,
 } from "./modules/settings/states/custom-background";
+import { previewRendererAtom } from "./modules/settings/states/preview.ts";
 import { showTouchSyncPanelAtom } from "./modules/settings/states/sync.ts";
 import {
 	amllToTTML,
@@ -73,6 +79,7 @@ import { useAppUpdate } from "./utils/useAppUpdate.ts";
 
 const LyricLinesView = lazy(() => import("./modules/lyric-editor/components"));
 const AMLLWrapper = lazy(() => import("./components/AMLLWrapper"));
+const SpicyPreview = lazy(() => import("./components/SpicyLyrics"));
 const Dialogs = lazy(() => import("./components/Dialogs"));
 
 const appLogger = createLogger("App");
@@ -146,7 +153,9 @@ const AppErrorPage = ({
 function App() {
 	const isDarkTheme = useAtomValue(isDarkThemeAtom);
 	const toolMode = useAtomValue(toolModeAtom);
+	const previewRenderer = useAtomValue(previewRendererAtom);
 	const showTouchSyncPanel = useAtomValue(showTouchSyncPanelAtom);
+	const showSpicySyncPanel = useAtomValue(showSpicySyncPanelAtom);
 	const customBackgroundImage = useAtomValue(customBackgroundImageAtom);
 	const customBackgroundOpacity = useAtomValue(customBackgroundOpacityAtom);
 	const customBackgroundMask = useAtomValue(customBackgroundMaskAtom);
@@ -203,6 +212,8 @@ function App() {
 	const { openFile } = useFileOpener();
 	useAudioFeedback();
 	useMediaSession();
+	useAudioCoverArt();
+	useMetronome();
 
 	useEffect(() => {
 		if (!import.meta.env.TAURI_ENV_PLATFORM) {
@@ -339,6 +350,7 @@ function App() {
 					<DarkThemeDetector />
 					<Flex direction="column" height="100vh">
 						<TitleBar />
+						<StatsBar />
 						<RibbonBar />
 						<Flex flexGrow="1" overflow="hidden" direction="row" mt="2">
 							<Sidebar />
@@ -370,13 +382,21 @@ function App() {
 													animate={{ opacity: 1 }}
 													exit={{ opacity: 0 }}
 												>
-													<AMLLWrapper />
+													{previewRenderer === "spicy" ? (
+														<SpicyPreview />
+													) : (
+														<AMLLWrapper />
+													)}
 												</motion.div>
 											</Box>
 										</SuspensePlaceHolder>
 									)}
 								</AnimatePresence>
 							</Box>
+							{/* 打轴时的右侧 Spicy 实时预览，只在打轴模式下出现 */}
+							{toolMode === ToolMode.Sync && showSpicySyncPanel && (
+								<SpicySyncPanel />
+							)}
 						</Flex>
 						{showTouchSyncPanel && toolMode === ToolMode.Sync && (
 							<TouchSyncPanel />

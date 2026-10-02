@@ -236,3 +236,54 @@ export function findNextWord(
 		syncIndex: 0,
 	};
 }
+
+/** 与 findNextWord 对称：找到当前 unit 之前的一个可同步单元（可跨行） */
+export function findPrevWord(
+	lyricLines: LyricLine[],
+	lineIndex: number,
+	syncIndex: number,
+):
+	| {
+			unit: SyncWordUnit;
+			line: LyricLine;
+			lineIndex: number;
+			syncIndex: number;
+	  }
+	| undefined {
+	const line = lyricLines[lineIndex];
+	if (!line) return;
+	const units = getSynchronizableUnits(line);
+	if (syncIndex > 0) {
+		const prevUnit = units[syncIndex - 1];
+		if (prevUnit) {
+			return {
+				line,
+				lineIndex,
+				unit: prevUnit,
+				syncIndex: syncIndex - 1,
+			};
+		}
+	}
+
+	const prevLineIndex = lyricLines
+		.slice(0, lineIndex)
+		.reverse()
+		.findIndex(
+			(prevLine) =>
+				isSynchronizableLine(prevLine) &&
+				getSynchronizableUnits(prevLine).length > 0,
+		);
+	if (prevLineIndex === -1) return;
+	const absoluteIndex = lineIndex - 1 - prevLineIndex;
+	const prevLine = lyricLines[absoluteIndex];
+	if (!prevLine) return;
+	const prevLineUnits = getSynchronizableUnits(prevLine);
+	const lastUnit = prevLineUnits[prevLineUnits.length - 1];
+	if (!lastUnit) return;
+	return {
+		line: prevLine,
+		lineIndex: absoluteIndex,
+		unit: lastUnit,
+		syncIndex: prevLineUnits.length - 1,
+	};
+}

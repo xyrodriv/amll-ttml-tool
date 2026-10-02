@@ -20,6 +20,9 @@ importers:
       '@applemusic-like-lyrics/react':
         specifier: 0.5.2
         version: 0.5.2(@pixi/app@7.4.3(@pixi/core@7.4.3)(@pixi/display@7.4.3(@pixi/core@7.4.3)))(@pixi/core@7.4.3)(@pixi/display@7.4.3(@pixi/core@7.4.3))(@pixi/filter-blur@7.4.3(@pixi/core@7.4.3))(@pixi/filter-bulge-pinch@5.1.1(@pixi/core@7.4.3))(@pixi/filter-color-matrix@7.4.3(@pixi/core@7.4.3))(@pixi/sprite@7.4.3(@pixi/core@7.4.3)(@pixi/display@7.4.3(@pixi/core@7.4.3)))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@kawarp/core':
+        specifier: ^1.2.2
+        version: 1.2.2
       '@radix-ui/themes':
         specifier: ^3.3.0
         version: 3.3.0(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -1048,6 +1051,9 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@kawarp/core@1.2.2':
+    resolution: {integrity: sha512-rlZ672iRUjAsgn0H0+hfAlAryPuDcdt2M5obhP0M8yJWq7RlnFcEYypIaKremkzbKVLxCec7PGo6TnIpzK4K1w==}
 
   '@lukeed/csprng@1.1.0':
     resolution: {integrity: sha512-Z7C/xXCiGWsg0KuKsHTKJxbWhpI3Vs5GwLfOean7MGyVFGqdRgBbAjOCh6u4bbjPc/8MJ2pZmK/0DLdCbivLDA==}
@@ -5318,6 +5324,8 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@kawarp/core@1.2.2': {}
 
   '@lukeed/csprng@1.1.0': {}
 

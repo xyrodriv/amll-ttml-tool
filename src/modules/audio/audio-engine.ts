@@ -27,6 +27,9 @@ export type { AudioTrackMetadata };
 
 class AudioEngineWrapper extends EventTarget {
 	private engine: FFmpegAudioEngine;
+	/** `interpolatedCurrentTime` 的插值基准：上一次引擎真的上报了新位置 */
+	private _lastReportedTime = -1;
+	private _lastReportedAt = 0;
 	private _audioTrackMetadata: AudioTrackMetadata = {
 		titles: [],
 		artists: [],
@@ -53,6 +56,21 @@ class AudioEngineWrapper extends EventTarget {
 		this.gainNode.gain.value = 0.5;
 		this.gainNode.connect(this.ctx.destination);
 		return this.gainNode;
+	}
+
+	/**
+	 * 频谱分析节点，挂在 gain 之后做旁路（analyser 不需要再接到 destination）。
+	 * Spicy 预览的动态背景用它取实时能量来驱动形变速度。
+	 */
+	private analyserNodeInstance: AnalyserNode | null = null;
+	get analyserNode() {
+		if (this.analyserNodeInstance) return this.analyserNodeInstance;
+		const analyser = this.ctx.createAnalyser();
+		analyser.fftSize = 256;
+		analyser.smoothingTimeConstant = 0.8;
+		this.gain.connect(analyser);
+		this.analyserNodeInstance = analyser;
+		return analyser;
 	}
 	//#endregion
 
@@ -110,7 +128,7 @@ class AudioEngineWrapper extends EventTarget {
 		this.engine = new FFmpegAudioEngine({
 			audioContext: this.ctx,
 			gainNode: this.gain,
-			defaultAlgorithm: globalStore.get(stretchAlgorithmAtom) ?? "spectral",
+			defaultAlgorithm: globalStore.get(stretchAlgorithmAtom) ?? "wsola",
 			assets: {
 				workerUrl,
 				workletUrl,
@@ -189,6 +207,28 @@ class AudioEngineWrapper extends EventTarget {
 
 	get musicCurrentTime() {
 		return this.engine.currentTime;
+	}
+
+	/**
+	 * 播放位置（秒），但按真实时间做了插值外推。
+	 *
+	 * 音频元素的 `currentTime` 只在比较粗的间隔里更新（几十毫秒级），
+	 * 逐帧直接读它做动画就会一顿一顿的 —— 歌词扫光会明显卡顿。
+	 * 这里在两次上报之间用 `performance.now()` 的差值外推，
+	 * 让每一帧拿到的都是连续的位置。
+	 */
+	get interpolatedCurrentTime() {
+		const currentTime = this.engine.currentTime;
+		if (!this.musicPlaying) return currentTime;
+
+		if (currentTime !== this._lastReportedTime) {
+			this._lastReportedTime = currentTime;
+			this._lastReportedAt = performance.now();
+			return currentTime;
+		}
+
+		const elapsed = (performance.now() - this._lastReportedAt) / 1000;
+		return currentTime + elapsed * this.musicPlayBackRate;
 	}
 
 	get musicDuration() {

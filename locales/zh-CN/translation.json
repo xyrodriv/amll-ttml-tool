@@ -78,27 +78,68 @@
 			"showRoman": "显示音译",
 			"maskObsceneWords": "屏蔽不雅用语",
 			"word": "单词",
-			"fadeWidth": "过渡宽度"
+			"fadeWidth": "过渡宽度",
+			"renderer": "渲染器",
+			"rendererAmll": "AMLL",
+			"rendererSpicy": "Spicy Lyrics",
+			"spicy": "Spicy Lyrics",
+			"spicyFps": "显示 FPS",
+			"spicySimpleLyricsMode": "Simple Lyrics 模式",
+			"spicyForceLineSynced": "强制整行同步",
+			"spicyBackground": "背景",
+			"spicyBgAnimated": "动态",
+			"spicyBgColor": "取色",
+			"spicyBgStatic": "封面"
 		},
 		"syncMode": {
 			"currentEmptyBeat": "当前空拍",
 			"syncAdjustment": "打轴调整",
 			"timeOffset": "时间戳位移",
+			"nudgeStep": "微调步长",
 			"assistSettings": "辅助设置",
 			"showTimestampUpdate": "呈现时间戳更新",
 			"touchSyncPanel": "触控打轴辅助面板",
 			"bgLyricIgnoreSync": "背景歌词忽略打轴",
+			"autoClosePrevOnMarkBegin": "起始轴自动闭合上一字",
+			"lockedInTapMode": "敲击模式下强制开启",
+			"spicyPreview": "Spicy 预览",
+			"toggleSpicyLyrics": "切换 Spicy 歌词",
+			"spicyPanelTitle": "Spicy 歌词",
+			"closeSpicyPanel": "关闭预览",
+			"refreshSpicyPanel": "刷新预览",
+			"lite": "省电模式",
+			"liteSpicyPanel": "省电模式 —— 减少动画行数、去掉发光。关掉可看完整效果。",
+			"autoRefresh": "自动刷新",
+			"autoRefreshOff": "关闭",
+			"resizeSpicyPanel": "调整预览宽度",
+			"autoClosePrevAcrossLines": "换行时也闭合上一行末字",
+			"autoClosePrevAcrossLinesHint": "在下一行首个字按起始轴时，同时闭合上一行最后一个字",
+			"autoAdvanceOnMarkBegin": "起始轴后自动跳下一字",
+			"autoAdvanceOnMarkBeginHint": "需先开启「起始轴自动闭合上一字」",
 			"displayOptions": "显示选项",
 			"showTimestamps": "显示时间戳",
 			"highlightActiveWord": "高亮当前音节",
 			"highlightErrors": "高亮错误",
+			"showSyncedWordMarkers": "波形已打轴标记",
 			"showPerWordRomanization": "显示逐字音译",
 			"keyBindingReference": "打轴键位速查",
 			"startSync": "起始轴",
 			"continuousSync": "连续轴",
-			"endSync": "结束轴"
+			"endSync": "结束轴",
+			"nudgeBackward": "前移所选",
+			"nudgeForward": "后移所选"
 		},
-		"loading": "面板载入中…"
+		"autoSyllable": {
+			"title": "音节",
+			"enable": "自动拆分英文音节",
+			"splitCount": "已拆 {{count}} 词",
+			"hint": "把英文单词拆成 word.ruby[] 音节，可用 Ctrl+Z 撤销"
+		},
+		"loading": "面板载入中…",
+		"timeShift": {
+			"title": "平移时间",
+			"open": "平移时间..."
+		}
 	},
 	"settings": {
 		"common": {
@@ -120,6 +161,8 @@
 				"line3": "Apple Music 样式将翻译写入 <head> 的 iTunesMetadata 中，",
 				"line4": "但无 x-bg 行时间。"
 			},
+			"allowStackedBgVocals": "允许叠加背景歌词",
+			"allowStackedBgVocalsDesc": "保存时把连续的多条背景歌词全部写进同一行（多个 x-bg），打开文件时也会把叠加的背景歌词拆回多条背景行。关闭时只有每行的第一条背景歌词会保留背景标记。",
 			"translationOutputModeOptions": {
 				"amll": "AMLL 样式",
 				"appleMusic": "Apple Music 样式"
@@ -209,6 +252,7 @@
 		"modeBtns": {
 			"edit": "编辑",
 			"sync": "打轴",
+			"tap": "敲击",
 			"preview": "预览"
 		},
 		"appName": "Apple Music-like Lyrics TTML Tool",
@@ -263,7 +307,8 @@
 				"toLrcfySylb": "导出到 Lyricify Syllable",
 				"toASS": "导出到 ASS 字幕"
 			},
-			"syllableSmoothing": "平滑时间轴..."
+			"syllableSmoothing": "平滑时间轴...",
+			"sourceCode": "源代码（此版本）"
 		}
 	},
 	"header": {
@@ -308,6 +353,8 @@
 			"switchEditMode": "模式切换 - 切换到编辑模式",
 			"switchSyncMode": "模式切换 - 切换到打轴模式",
 			"switchPreviewMode": "模式切换 - 切换到预览模式",
+			"switchTapMode": "模式切换 - 切换到敲击模式",
+			"tapAlt": "打轴 - 敲击（备用键）",
 			"moveNextWord": "打轴 - 移动到下一个单词",
 			"movePrevWord": "打轴 - 移动到上一个单词",
 			"moveNextLine": "打轴 - 移动到下一行开头",
@@ -319,6 +366,8 @@
 			"syncEnd": "打轴 - 间奏打轴",
 			"moveFirstWordAndPlay": "打轴 - 移动到行第一个单词并播放",
 			"moveLastWordAndPlay": "打轴 - 移动到行最后一个单词并播放",
+			"nudgeWordBackward": "打轴 - 所选内容前移",
+			"nudgeWordForward": "打轴 - 所选内容后移",
 			"playPause": "播放 - 暂停/继续播放",
 			"seekForward": "播放 - 快进 5 秒",
 			"seekBackward": "播放 - 快退 5 秒",
@@ -704,7 +753,12 @@
 			"showBeatLines": "在频谱图上显示拍子",
 			"slidingWindowTip": "只会使用最近 10 次校准数据计算 BPM",
 			"spectrogramCalibration": "使用频谱图校准",
-			"clickOnSpectrogramToCalibrate": "在频谱图上点击以校准"
+			"clickOnSpectrogramToCalibrate": "在频谱图上点击以校准",
+			"clickToEdit": "点击输入 BPM",
+			"editLabel": "BPM 值",
+			"metronome": "节拍器",
+			"metronomeVolume": "节拍器音量",
+			"metronomeOnlyWhenPlaying": "仅在音轨播放时发声"
 		}
 	},
 	"syllableSmoothingDialog": {
@@ -719,5 +773,11 @@
 		"mergeSyllables": "合并音节",
 		"mergeSyllablesHint": "可以获得类似 Apple Music 的、把 CJK 合并到一起的歌词，但不适合日常使用",
 		"description": "对 CJK 音节的时间轴进行平滑处理\n不会平滑其他语言的音节"
+	},
+	"statsBar": {
+		"words": "单词",
+		"lines": "行",
+		"ariaLabel": "已打轴 {synced} / {total} 个单词",
+		"allSynced": "全部单词已打轴"
 	}
 }

@@ -28,11 +28,15 @@ import {
 	cmdSwitchEditMode,
 	cmdSwitchPreviewMode,
 	cmdSwitchSyncMode,
+	cmdSwitchTapMode,
 	cmdMoveLastWordAndPlay,
 	cmdMoveFirstWordAndPlay,
 	cmdSyncEnd,
 	cmdSyncNext,
 	cmdSyncStart,
+	cmdTapAlt,
+	cmdNudgeWordBackward,
+	cmdNudgeWordForward,
 	cmdUndo,
 	cmdUnselectAll,
 	cmdVolumeDown,
@@ -63,6 +67,7 @@ export const keyDeleteSelectionAtom = cmdDeleteSelection.atom;
 export const keySwitchEditModeAtom = cmdSwitchEditMode.atom;
 export const keySwitchSyncModeAtom = cmdSwitchSyncMode.atom;
 export const keySwitchPreviewModeAtom = cmdSwitchPreviewMode.atom;
+export const keySwitchTapModeAtom = cmdSwitchTapMode.atom;
 
 export const keyMoveNextWordAtom = cmdMoveNextWord.atom;
 export const keyMovePrevWordAtom = cmdMovePrevWord.atom;
@@ -72,8 +77,12 @@ export const keyMovePrevWordAndPlayAtom = cmdMovePrevWordAndPlay.atom;
 export const keyMoveNextWordAndPlayAtom = cmdMoveNextWordAndPlay.atom;
 
 export const keySyncStartAtom = cmdSyncStart.atom;
+export const keyTapAltAtom = cmdTapAlt.atom;
 export const keySyncNextAtom = cmdSyncNext.atom;
 export const keySyncEndAtom = cmdSyncEnd.atom;
+
+export const keyNudgeWordBackwardAtom = cmdNudgeWordBackward.atom;
+export const keyNudgeWordForwardAtom = cmdNudgeWordForward.atom;
 
 export const keyMoveFirstWordAndPlayAtom = cmdMoveFirstWordAndPlay.atom;
 export const keyMoveLastWordAndPlayAtom = cmdMoveLastWordAndPlay.atom;

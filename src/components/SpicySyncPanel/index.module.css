@@ -1,0 +1,85 @@
+/*
+ * Copyright 2023-2025 Steve Xiao (stevexmh@qq.com) and contributors.
+ *
+ * 本源代码文件是属于 AMLL TTML Tool 项目的一部分。
+ * This source code file is a part of AMLL TTML Tool project.
+ * 本项目的源代码的使用受到 GNU GENERAL PUBLIC LICENSE version 3 许可证的约束，具体可以参阅以下链接。
+ * Use of this source code is governed by the GNU GPLv3 license that can be found through the following link.
+ *
+ * https://github.com/amll-dev/amll-ttml-tool/blob/main/LICENSE
+ */
+
+/* 打轴页右侧的 Spicy 预览面板：贴着编辑区右边，宽度由 JS 写在 inline style 上 */
+.panel {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	flex-shrink: 0;
+	height: 100%;
+	min-width: 0;
+	margin: 0 var(--space-2) var(--space-2) 0;
+	border: 1px solid var(--gray-a4);
+	border-radius: var(--radius-3);
+	overflow: hidden;
+	background: var(--color-panel-solid);
+	animation: panelIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.header {
+	/* 左边留出拖手柄的宽度，标题别压在手柄上 */
+	padding: 0 var(--space-2) 0 var(--space-4);
+	min-height: 32px;
+	border-bottom: 1px solid var(--gray-a4);
+}
+
+.body {
+	position: relative;
+	min-height: 0;
+}
+
+/* 标题自己吃掉剩余宽度，右边的按钮组才不会被挤掉 */
+.title {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* 面板本来就窄，自动刷新的下拉框不能再占太多地方 */
+.autoSelect {
+	min-width: 0;
+	width: 62px;
+}
+
+.handle {
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	width: 6px;
+	z-index: 2;
+	cursor: ew-resize;
+	touch-action: none;
+	transition: background 0.12s linear;
+}
+
+.handle:hover {
+	background: var(--gray-a5);
+}
+
+@keyframes panelIn {
+	from {
+		opacity: 0;
+		transform: translateX(16px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.panel {
+		animation: none;
+	}
+}

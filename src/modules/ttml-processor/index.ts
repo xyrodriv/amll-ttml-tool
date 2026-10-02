@@ -1,4 +1,5 @@
 import {
+	allowStackedBgVocalsAtom,
 	TranslationOutputMode,
 	translationOutputModeAtom,
 } from "$/modules/settings/states";
@@ -9,6 +10,11 @@ import type {
 	TTMLLyric as AppTTMLLyric,
 	TTMLMetadata as AppTTMLMetadata,
 } from "$/types/ttml";
+import {
+	collapseStackedBgForExport,
+	splitMergedBgLines,
+	splitStackedBgInXml,
+} from "./stacked-bg";
 import type {
 	AmllLyricLine,
 	AmllLyricResult,
@@ -115,7 +121,13 @@ export function ttmlToAmll(
 	const result = rawTtmlToAmll(ttmlContent, options) as Result<AmllLyricResult>;
 	if (!result.success) return result;
 
-	const processedLyricLines = result.data.lyricLines.map((line) => {
+	// 叠加背景歌词：把同一 <p> 里被合并的多个 x-bg 拆回多条背景行
+	let sourceLines = result.data.lyricLines;
+	if (globalStore.get(allowStackedBgVocalsAtom)) {
+		sourceLines = splitMergedBgLines(ttmlContent, sourceLines);
+	}
+
+	const processedLyricLines = sourceLines.map((line) => {
 		const newWords: AmllLyricWord[] = [];
 
 		for (const word of line.words) {
@@ -279,9 +291,18 @@ export function amllToTTML(
 	options?: Partial<AmllToTtmlOptions>,
 	config?: Partial<GeneratorConfig>,
 ): Result<string> {
-	const processedAmllResult = postProcessLyricLines(amllResult);
-	const lineTiming = isLineTimingLyrics(amllResult);
-	return rawAmllToTtml(
+	// 叠加背景歌词：保存前折叠连续背景行，生成后拆回多个 x-bg span
+	let working = amllResult;
+	let stackedPlan: ReturnType<typeof collapseStackedBgForExport>["plan"] | null =
+		null;
+	if (globalStore.get(allowStackedBgVocalsAtom)) {
+		const collapsed = collapseStackedBgForExport(amllResult);
+		working = collapsed.result;
+		stackedPlan = collapsed.plan.groups.length > 0 ? collapsed.plan : null;
+	}
+	const processedAmllResult = postProcessLyricLines(working);
+	const lineTiming = isLineTimingLyrics(working);
+	const generated = rawAmllToTtml(
 		processedAmllResult,
 		options,
 		withDefaultGeneratorConfig({
@@ -289,6 +310,10 @@ export function amllToTTML(
 			...config,
 		}),
 	) as Result<string>;
+	if (generated.success && stackedPlan) {
+		return { success: true, data: splitStackedBgInXml(generated.data, stackedPlan) };
+	}
+	return generated;
 }
 
 /**
