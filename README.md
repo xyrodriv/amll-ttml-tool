@@ -26,8 +26,8 @@ and redeploys automatically on every push to this fork's `main` branch.
 ### Credits & licenses
 
 - Upstream editor: [`amll-dev/amll-ttml-tool`](https://github.com/amll-dev/amll-ttml-tool) — **GPLv3**
-- Spicy Lyrics preview renderer: derived from [`spicy-lyrics`](https://github.com/SpikeJS/spicy-lyrics)
-  (and the NaeNae React rewrite) — **AGPLv3**; the combined work inherits AGPLv3 per §13
+- Spicy Lyrics preview renderer: derived from [`spicy-lyrics`](https://github.com/Spikerko/spicy-lyrics)
+  (and the NaeNae React rewrite of it) — **AGPLv3**; the combined work inherits AGPLv3 per §13
 - `@kawarp/core` (Apple-Music-style fluid backdrop) — **MIT**
 - The modified source of this fork is published at the link above, as required by AGPLv3 §13
 
