@@ -733,7 +733,16 @@
 	"pwa": {
 		"offlineReady": "网站已成功离线缓存，后续可离线访问本网页",
 		"updateRefresh": "网站已更新，刷新网页以使用最新版本！",
-		"refresh": "刷新"
+		"refresh": "刷新",
+		"updateDialog": {
+			"title": "更新已就绪",
+			"descriptionDirty": "新版本已就绪。你有未保存的修改，是否在刷新前先将歌词保存为 TTML 文件？",
+			"descriptionClean": "新版本已就绪，刷新即可切换到最新版本。",
+			"saveAndReload": "保存并刷新",
+			"reloadNow": "立即刷新",
+			"later": "稍后",
+			"saveFailed": "歌词保存失败，已取消刷新。"
+		}
 	},
 	"sidebar": {
 		"outline": {

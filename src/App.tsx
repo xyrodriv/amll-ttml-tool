@@ -41,6 +41,7 @@ import { Sidebar } from "./components/Sidebar/index.tsx";
 import { SpicySyncPanel } from "./components/SpicySyncPanel/index.tsx";
 import { StatsBar } from "./components/StatsBar/index.tsx";
 import { TitleBar } from "./components/TitleBar";
+import { UpdateDialog } from "./components/UpdateDialog/index.tsx";
 import { useFileOpener } from "./hooks/useFileOpener.ts";
 import AudioControls from "./modules/audio/components/index.tsx";
 import { useAudioCoverArt } from "./modules/audio/hooks/useAudioCoverArt.ts";
@@ -408,6 +409,7 @@ function App() {
 					<Suspense fallback={null}>
 						<Dialogs />
 					</Suspense>
+					<UpdateDialog />
 					<DragGhostRenderer />
 				</div>
 

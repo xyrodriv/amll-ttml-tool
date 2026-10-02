@@ -30,6 +30,7 @@ export const confirmDialogAtom = atom<{
 	description: "",
 });
 export const historyRestoreDialogAtom = atom(false);
+export const updateDialogOpenAtom = atom(false);
 export const importFromLRCLIBDialogAtom = atom(false);
 export const ttmlErrorDialogAtom = atom<{
 	error: JsError;

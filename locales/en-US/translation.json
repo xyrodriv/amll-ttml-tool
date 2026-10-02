@@ -733,7 +733,16 @@
 	"pwa": {
 		"offlineReady": "Site successfully cached for offline use",
 		"updateRefresh": "Site updated, refresh to use the latest version!",
-		"refresh": "Refresh"
+		"refresh": "Refresh",
+		"updateDialog": {
+			"title": "Update ready",
+			"descriptionDirty": "A new version is ready. You have unsaved changes — save your lyrics to a TTML file before reloading?",
+			"descriptionClean": "A new version is ready. Reload to switch to it.",
+			"saveAndReload": "Save & reload",
+			"reloadNow": "Reload now",
+			"later": "Later",
+			"saveFailed": "Could not save your lyrics — reload cancelled."
+		}
 	},
 	"sidebar": {
 		"outline": {
