@@ -3,7 +3,8 @@
 AJ raised this on 2026-09-19, we designed it together, and he chose to **defer the build**.
 This file is the merged design so it can be picked up later without re-deriving anything.
 
-**Reference implementation to port from:** `C:\Users\ajsigma\Desktop\easier ttml tool`
+**Reference implementation to port from:** the sibling project at `~/Desktop/easier ttml tool`
+(local path on the maintainer's machine — not part of this repo)
 See `src/components/LyricStrip.jsx` (the right-click menu + N-stepper popover) and
 `src/store.js` (`copyBeamFrom` ~line 1687, `pasteBeamAt` ~line 1699, `duplicateAsBg` ~line 1722).
 
