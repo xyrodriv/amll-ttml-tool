@@ -413,6 +413,28 @@ function App() {
 					<DragGhostRenderer />
 				</div>
 
+				{/* TEMP TEST BUTTON — update-dialog test, remove after */}
+				<button
+					type="button"
+					onClick={() => toast.success("TEST BUTTON WORKS — build v2")}
+					style={{
+						position: "fixed",
+						right: 16,
+						bottom: 16,
+						zIndex: 9999,
+						padding: "10px 16px",
+						borderRadius: 8,
+						border: "2px solid #00a37a",
+						background: "#00a37a",
+						color: "#fff",
+						fontWeight: 700,
+						fontSize: 14,
+						cursor: "pointer",
+					}}
+				>
+					TEST v2
+				</button>
+
 				{createPortal(
 					<Theme appearance={effectiveTheme} style={{ display: "contents" }}>
 						<ToastContainer theme={effectiveTheme} />
