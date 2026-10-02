@@ -4,7 +4,8 @@
 
 # Apple Music-like Lyrics TTML Tool
 
-一个全新的逐词歌词编辑器！针对 [Apple Music-like Lyrics 生态](https://github.com/amll-dev/applemusic-like-lyrics)制作！
+A brand-new word-by-word lyrics editor, built for the
+[Apple Music-like Lyrics ecosystem](https://github.com/amll-dev/applemusic-like-lyrics).
 
 <img width="1312" alt="image" src="https://github.com/user-attachments/assets/4db81b29-df0c-4f6e-819a-3b956b28247c">
 <img width="1312" alt="image" src="https://github.com/user-attachments/assets/929eefee-ebda-43db-ad04-c0f099077053">
@@ -14,61 +15,68 @@
 
 ## About this fork
 
-This deployment is a customized fork maintained at
+This is a customized fork maintained at
 **[github.com/xyrodriv/amll-ttml-tool](https://github.com/xyrodriv/amll-ttml-tool)**,
 forked from [github.com/amll-dev/amll-ttml-tool](https://github.com/amll-dev/amll-ttml-tool)
 (the original upstream project, © Steve Xiao and the AMLL contributors).
 
 The live web build is at **[amll-ttml-tool-clone.vercel.app](https://amll-ttml-tool-clone.vercel.app)**
-and auto-redeploys on every push to the fork's `main` branch.
+and redeploys automatically on every push to this fork's `main` branch.
 
 ### Credits & licenses
-- Upstream editor: [`amll-dev/amll-ttml-tool`](https://github.com/amll-dev/amll-ttml-tool) — **GPLv3**.
-- Spicy Lyrics preview renderer: derived from [`spicy-lyrics`](https://github.com/SpikeJS/spicy-lyrics)
-  (and the NaeNae React rewrite) — **AGPLv3** (the combined work inherits AGPLv3 per §13).
-- `@kawarp/core` (Apple-Music-style fluid backdrop) — **MIT**.
-- Modified source of this fork is published at the link above for compliance with AGPLv3 §13.
 
-## 使用
+- Upstream editor: [`amll-dev/amll-ttml-tool`](https://github.com/amll-dev/amll-ttml-tool) — **GPLv3**
+- Spicy Lyrics preview renderer: derived from [`spicy-lyrics`](https://github.com/SpikeJS/spicy-lyrics)
+  (and the NaeNae React rewrite) — **AGPLv3**; the combined work inherits AGPLv3 per §13
+- `@kawarp/core` (Apple-Music-style fluid backdrop) — **MIT**
+- The modified source of this fork is published at the link above, as required by AGPLv3 §13
+
+## Usage
 
 > [!WARNING]
-> 本工具不建议移动手机或小尺寸电子设备使用，操作会非常繁琐！
+> This tool is not intended for phones or other small-screen devices — the workflow is cumbersome on them.
 
-你可以通过访问 [`https://amll-ttml-tool.stevexmh.net/`](https://amll-ttml-tool.stevexmh.net/)来使用本工具的在线版本。
+Use the hosted build of this fork at
+**[amll-ttml-tool-clone.vercel.app](https://amll-ttml-tool-clone.vercel.app)**.
 
-欢迎访问[ test 分支](https://amll-ttml-tool-test.vercel.app/)来体验最新的功能和最新的 BUG！
+The upstream project also hosts its own online version at
+[`https://amll-ttml-tool.stevexmh.net/`](https://amll-ttml-tool.stevexmh.net/), and a bleeding-edge
+build on its [test branch](https://amll-ttml-tool-test.vercel.app/).
 
-也可以使用 Github Action 构建的 Tauri 桌面版本，具体见 [Github Action 构建 Tauri 桌面版本](https://github.com/amll-dev/amll-ttml-tool/actions/workflows/build-desktop.yaml)。
+A Tauri desktop build is available through the upstream repository's
+[GitHub Actions workflow](https://github.com/amll-dev/amll-ttml-tool/actions/workflows/build-desktop.yaml).
 
-## 编辑器功能
+## Editor features
 
-- 基本输入、编辑、打轴功能
-- 读取保存 TTML 格式歌词
-- 配置歌词行行为（背景歌词、对唱歌词等）
-- 配置歌词文件元数据（名称，作者，网易云音乐 ID 等）
-- 拆分/组合/移动单词
-- LRC/ESLyric/YRC/QRC/Lyricify Syllable 等歌词文件格式的导入以及部分格式的导出
-- 支持带有特殊标识符的纯文本导入歌词
-- 可配置的快捷键
+- Basic input, editing and timing (syncing) tools
+- Read and save lyrics in TTML format
+- Configure per-line behavior (background vocals, duet lines, etc.)
+- Configure lyric file metadata (title, artist, Netease Cloud Music ID, etc.)
+- Split / merge / move words
+- Import (and partially export) LRC, ESLyric, YRC, QRC and Lyricify Syllable formats
+- Import plain-text lyrics that use special markers
+- Configurable keyboard shortcuts
 
-## 开发构建
+## Development & build
 
-本工具构建可能相对比较复杂，如果文字描述太过繁杂的话可以直接参考 [`build-desktop.yaml`](.github/workflows/build-desktop.yaml) 工作流的步骤自行进行。
+Building this project is somewhat involved. If the prose below is hard to follow, just mirror the steps
+in the [`build-desktop.yaml`](.github/workflows/build-desktop.yaml) workflow.
 
-首先，本项目仅可使用 PNPM，请确保你已经安装好了 PNPM 包管理器！
+This project only supports **PNPM** — make sure you have it installed.
 
-然后克隆本仓库，然后在仓库文件夹下执行构建：
+Clone the repository, then run the build inside the project folder:
 
 ```bash
-pnpm i # 安装依赖
-pnpm dev # 开启开发服务器
-pnpm build # 构建网页版本
-pnpm tauri dev # 开启 Tauri 桌面版本开发环境
-pnpm tauri build # 构建 Tauri 桌面版本
+pnpm i           # install dependencies
+pnpm dev         # start the dev server
+pnpm build       # build the web version
+pnpm tauri dev   # start the Tauri desktop dev environment
+pnpm tauri build # build the Tauri desktop version
 ```
 
-## 贡献
+## Contributing
 
-欢迎各种积极的代码/翻译贡献！也欢迎积极提交各种议题和建议！
+Code and translation contributions are welcome, as are issues and suggestions.
 
-如果想要提供新的语言翻译，可以参考 [`./src/i18n/index.ts`](./src/i18n/index.ts) 和 [`./locales/zh-CN/translation.json`](./locales/zh-CN/translation.json) 哦！
+To add a new language translation, see [`./src/i18n/index.ts`](./src/i18n/index.ts) and
+[`./locales/zh-CN/translation.json`](./locales/zh-CN/translation.json).
